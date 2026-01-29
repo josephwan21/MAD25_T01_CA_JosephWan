@@ -31,6 +31,8 @@ fun GameScreen(navController: NavController) {
 
     var showDialog by remember { mutableStateOf(false) }
 
+    var moleTrigger by remember { mutableStateOf(0)}
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -81,7 +83,11 @@ fun GameScreen(navController: NavController) {
                                             shape = androidx.compose.foundation.shape.CircleShape
                                         )
                                         .clickable {
-                                            if (gameRunning && index == currentMoleIndex) score++
+                                            if (gameRunning && index == currentMoleIndex) {
+                                                score++
+                                                currentMoleIndex = getNewMoleIndex(currentMoleIndex)
+                                                moleTrigger++
+                                            }
                                         }
                                 ) {
                                     if (index == currentMoleIndex) {
@@ -102,6 +108,8 @@ fun GameScreen(navController: NavController) {
                         currentMoleIndex = -1
                         gameRunning = true
                         showDialog = false
+                        currentMoleIndex = Random.nextInt(0, 9)
+                        moleTrigger++
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -128,11 +136,13 @@ fun GameScreen(navController: NavController) {
     }
 
     // Mole movement
-    LaunchedEffect(gameRunning) {
-        while (gameRunning) {
-            delay(Random.nextLong(700, 1000))
-            currentMoleIndex = Random.nextInt(0, 9)
-        }
+    LaunchedEffect(gameRunning, moleTrigger) {
+       if (!gameRunning) {
+           return@LaunchedEffect
+       }
+        delay(Random.nextLong(700, 1000))
+        currentMoleIndex = getNewMoleIndex(currentMoleIndex)
+
     }
 
     // Game over dialog
@@ -150,4 +160,12 @@ fun GameScreen(navController: NavController) {
             }
         )
     }
+}
+
+fun getNewMoleIndex(current: Int): Int {
+    var newIndex = current
+    while (newIndex == current) {
+        newIndex = Random.nextInt(0, 9)
+    }
+    return newIndex
 }
