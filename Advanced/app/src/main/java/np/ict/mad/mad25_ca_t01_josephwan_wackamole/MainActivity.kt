@@ -37,28 +37,15 @@ fun WackAMoleApp() {
         LocalContext.current,
         AppDatabase::class.java,
         "wackamole_db"
-    ).allowMainThreadQueries().build()
+    ).allowMainThreadQueries().fallbackToDestructiveMigration(dropAllTables = true).build()
 
     val navController = rememberNavController()
     val userModel: UserModel = viewModel()
 
     NavHost(navController = navController, startDestination = "signin") {
-
-        composable("signin") {
-            SignInScreen(
-                navController = navController,
-                db = db,
-                userModel = userModel
-            )
-        }
-
-        composable("game") {
-            GameScreen(
-                navController = navController,
-                db = db,
-                userModel = userModel
-            )
-        }
-        composable("settings") { SettingsScreen(navController) }
+        composable("signin") { SignInScreen(navController, db, userModel) }
+        composable("game") { GameScreen(navController, db, userModel) }
+        composable("settings") { SettingsScreen(navController, userModel) }
+        composable("leaderboard") { LeaderboardScreen(navController, db, userModel) }
     }
 }
