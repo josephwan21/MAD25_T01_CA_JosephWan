@@ -140,9 +140,10 @@ fun GameScreen(navController: NavController) {
        if (!gameRunning) {
            return@LaunchedEffect
        }
-        delay(Random.nextLong(700, 1000))
-        currentMoleIndex = getNewMoleIndex(currentMoleIndex)
-
+        while (gameRunning) {
+            delay(Random.nextLong(700, 1000))
+            currentMoleIndex = getNewMoleIndex(currentMoleIndex)
+        }
     }
 
     // Game over dialog
