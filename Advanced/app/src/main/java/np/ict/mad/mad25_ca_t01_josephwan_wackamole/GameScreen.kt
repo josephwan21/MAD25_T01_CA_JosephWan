@@ -18,7 +18,9 @@ import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameScreen(navController: NavController) {
+fun GameScreen(navController: NavController, db: AppDatabase, userModel: UserModel) {
+
+    val currentUser = userModel.currentUser ?: return
     var score by remember { mutableStateOf(0) }
     var timeLeft by remember { mutableStateOf(30) }
     var currentMoleIndex by remember { mutableStateOf(-1) }
@@ -26,9 +28,15 @@ fun GameScreen(navController: NavController) {
 
     val context = LocalContext.current
 
-    val prefs = context.getSharedPreferences("wackamole_prefs", Context.MODE_PRIVATE)
-    var highScore by remember { mutableStateOf(prefs.getInt("high_score", 0)) }
+    //val prefs = context.getSharedPreferences("wackamole_prefs", Context.MODE_PRIVATE)
+    //var highScore by remember { mutableStateOf(prefs.getInt("high_score", 0)) }
 
+    //Load personal best from Room
+    var personalBest by remember { mutableStateOf(0) }
+    LaunchedEffect(currentUser) {
+        val bestScore = db.scoreDao().getBestScoreForUser(currentUser.userId)?.score ?: 0
+        personalBest = bestScore
+    }
     var showDialog by remember { mutableStateOf(false) }
 
     var moleTrigger by remember { mutableStateOf(0)}
@@ -59,7 +67,7 @@ fun GameScreen(navController: NavController) {
                 ) {
                     Text("Score: $score")
                     Text("Time: $timeLeft")
-                    Text("High Score: $highScore")
+                    Text("High Score: $personalBest")
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -127,10 +135,14 @@ fun GameScreen(navController: NavController) {
             if (timeLeft == 0) {
                 gameRunning = false
                 showDialog = true
-                if (score > highScore) {
-                    highScore = score
-                    prefs.edit().putInt("high_score", highScore).apply()
-                }
+
+                // Save score to Room
+                val scoreEntity = Score(userId = currentUser.userId, score = score)
+                db.scoreDao().insertScore(scoreEntity)
+
+                // Update personal best immediately
+                val bestScore = db.scoreDao().getBestScoreForUser(currentUser.userId)?.score ?: 0
+                personalBest = bestScore
             }
         }
     }
@@ -150,7 +162,7 @@ fun GameScreen(navController: NavController) {
         AlertDialog(
             onDismissRequest = {},
             title = { Text("Game Over") },
-            text = { Text("Your score: $score\nHigh score: $highScore") },
+            text = { Text("Your score: $score\nHigh score: $personalBest") },
             confirmButton = {
                 TextButton(
                     onClick = { showDialog = false }

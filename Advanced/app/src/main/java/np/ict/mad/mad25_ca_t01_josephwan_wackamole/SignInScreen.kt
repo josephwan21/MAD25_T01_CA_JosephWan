@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(navController: NavController, db: AppDatabase) {
+fun SignInScreen(navController: NavController, db: AppDatabase, userModel: UserModel) {
     val context = LocalContext.current
 
     var username by remember { mutableStateOf("") }
@@ -62,7 +62,7 @@ fun SignInScreen(navController: NavController, db: AppDatabase) {
                             return@Button
                         }
 
-                        val existingUser = db.userDao().getUserByUsername(username)
+                        val existingUser = db.userDao().getUserByCredentials(username, password)
                         if (existingUser != null) {
                             Toast.makeText(context, "Username already exists", Toast.LENGTH_SHORT).show()
                         } else {
@@ -75,12 +75,15 @@ fun SignInScreen(navController: NavController, db: AppDatabase) {
 
                     Button(onClick = {
                         // SIGN IN
-                        val user = db.userDao().getUserByUsername(username)
+                        val user = db.userDao().getUserByCredentials(username, password)
                         if (user == null || user.password != password) {
                             Toast.makeText(context, "Invalid username or password", Toast.LENGTH_SHORT).show()
                         } else {
                             // Navigate to GameScreen with current user
-                            navController.navigate("game?userId=${user.userId}&username=${user.username}")
+                            userModel.setUser(user)
+                            navController.navigate("game") {
+                                popUpTo("signin") { inclusive = true }
+                            }
                         }
                     }) {
                         Text("Sign In")
