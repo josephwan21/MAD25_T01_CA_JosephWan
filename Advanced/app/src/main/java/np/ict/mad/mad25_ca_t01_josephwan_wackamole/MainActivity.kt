@@ -10,10 +10,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
 import np.ict.mad.mad25_ca_t01_josephwan_wackamole.ui.theme.MAD25_CA_T01_JosephWan_WackAMoleTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,9 +32,15 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WackAMoleApp() {
+    val db = Room.databaseBuilder(
+        LocalContext.current,
+        AppDatabase::class.java,
+        "wackamole_db"
+    ).allowMainThreadQueries().build()
+
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "game") {
+    NavHost(navController = navController, startDestination = "signin") {
         composable("game") { GameScreen(navController) }
         composable("settings") { SettingsScreen(navController) }
     }
