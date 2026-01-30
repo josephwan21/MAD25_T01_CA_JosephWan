@@ -20,29 +20,44 @@ The LLM was used for:
 
 ## 2. Example Prompts Used
 
-1. “Why does Room throw a schema mismatch error and how do I fix it?”
-2. “How can I store and retrieve a user’s personal best score using Room?”
-3. “Why does my mole jump twice when using multiple LaunchedEffect blocks?”
-4. “How should foreign keys and indices be defined in Room entities?”
+1. "Why does my Room database crash with `AppDatabase_Impl does not exist` even though my entities and DAOs compile?"
+2. “Why does my mole jump twice when using multiple LaunchedEffect blocks?”
+3. “How should foreign keys and indices be defined in Room entities?”
 
 ---
 
 ## 3. Code Influenced by LLM
 
-### 3.1 Personal Best Score Storage
+### 3.1 Mole Movement Logic
+
+With the intention to get the mole to immediately move to a different position upon getting clicked, the mole was sometimes jumping twice or appearing to skip positions due to overlapping timers and state changes.
 
 **Before (SharedPreferences):**
 ```kotlin
-val prefs = context.getSharedPreferences("wackamole_prefs", Context.MODE_PRIVATE)
-val highScore = prefs.getInt("high_score", 0)
+LaunchedEffect(gameRunning) {
+        while (gameRunning) {
+            delay(Random.nextLong(700, 1000))
+            currentMoleIndex = Random.nextInt(0, 9)
+        }
 ```
 
-**After (Room database):**
+**After (Refactored with LLM Guidance):**
 ```kotlin
-val bestScore = db.scoreDao().getBestScoreForUser(currentUser.userId)?.score ?: 0
+LaunchedEffect(gameRunning, moleTrigger) {
+       if (!gameRunning) {
+           return@LaunchedEffect
+       }
+        while (gameRunning) {
+            delay(Random.nextLong(700, 1000))
+            currentMoleIndex = getNewMoleIndex(currentMoleIndex)
+        }
+
+    }
 ```
 
-**Reason:** Room supports persistent, per-user data and scales better than SharedPreferences.
+**Why it was changed:** 
+- Clicking the mole immediately moves the mole to a new position and resets the delay timer cleanly.
+- Prevents overlapping coroutine execution.
 
 ---
 
@@ -57,17 +72,21 @@ These changes improved data integrity and eliminated Room warnings.
 ---
 
 ### 3.3 Game Logic Timing Fix
-
 - Identified multiple LaunchedEffect blocks updating the same state
 - Refactored logic to ensure controlled mole movement
 - Prevented unintended double jumps
 
 ---
 
-## 4. Database Migration Strategy
+## 4. Room Scheme Error Resolution
 
-Given the small scope of this CA, destructive migration was used during development:
+Given the small scope of this CA, destructive migration was used during development.
 
+### App crashed with:
+```Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number.
+```
+
+### Resolution
 ```kotlin
 .fallbackToDestructiveMigration(dropAllTables = true)
 ```
@@ -77,7 +96,6 @@ This ensured stability while iterating on the schema.
 ---
 
 ## 5. Key Takeaways
-
-- Better understanding of Jetpack Compose state and side-effects
-- Practical experience with Room entities, DAOs, and migrations
-- Improved debugging and error interpretation skills and consistency
+- Jetpack Compose requires careful handling of side effects (LaunchedEffect) to avoid unintended recompositions.
+- Room databases must be versioned consistently; schema changes require explicit handling.
+- Separating UI state from game logic improves predictability.
