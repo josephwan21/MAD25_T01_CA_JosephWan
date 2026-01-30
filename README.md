@@ -64,7 +64,7 @@ LaunchedEffect(gameRunning, moleTrigger) {
 ### 3.2 Database Schema Improvements
 
 - Added foreign key relationship between User and Score
-- Added index on foreign key column
+- Added index on foreign key column in the Score entity
 - Introduced timestamps for score tracking
 
 These changes improved data integrity and eliminated Room warnings.
@@ -83,8 +83,8 @@ These changes improved data integrity and eliminated Room warnings.
 Given the small scope of this CA, destructive migration was used during development.
 
 ### App crashed with:
-```Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number.
-```
+``Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number.
+``
 
 ### Resolution
 ```kotlin
