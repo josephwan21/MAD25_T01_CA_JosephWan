@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -39,9 +40,25 @@ fun WackAMoleApp() {
     ).allowMainThreadQueries().build()
 
     val navController = rememberNavController()
+    val userModel: UserModel = viewModel()
 
     NavHost(navController = navController, startDestination = "signin") {
-        composable("game") { GameScreen(navController) }
+
+        composable("signin") {
+            SignInScreen(
+                navController = navController,
+                db = db,
+                userModel = userModel
+            )
+        }
+
+        composable("game") {
+            GameScreen(
+                navController = navController,
+                db = db,
+                userModel = userModel
+            )
+        }
         composable("settings") { SettingsScreen(navController) }
     }
 }
