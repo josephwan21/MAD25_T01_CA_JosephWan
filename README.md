@@ -30,7 +30,7 @@ The LLM was used for:
 
 ### 3.1 Mole Movement Logic
 
-With the intention to get the mole to immediately move to a different position upon getting clicked, the mole was sometimes jumping twice or appearing to skip positions due to overlapping timers and state changes.
+With the intention to get the mole to immediately move to a different position upon clicking it, the mole was sometimes jumping twice or appearing to skip positions due to overlapping timers and state changes.
 
 **Before (Initial Attempt):**
 ```kotlin
@@ -78,7 +78,7 @@ These changes improved data integrity and eliminated Room warnings.
 
 ---
 
-## 4. Room Scheme Error Resolution
+## 4. Room Schema Error Resolution
 
 Given the small scope of this CA, destructive migration was used during development.
 
