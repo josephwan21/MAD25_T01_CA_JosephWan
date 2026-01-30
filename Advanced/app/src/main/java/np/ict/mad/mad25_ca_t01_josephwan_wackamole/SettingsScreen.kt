@@ -12,7 +12,7 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsScreen(navController: NavController, userModel: UserModel) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -28,11 +28,30 @@ fun SettingsScreen(navController: NavController) {
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Text("Settings Screen")
+                Button(
+                    onClick = { navController.navigate("leaderboard") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("View Leaderboard")
+                }
+
+                Button(
+                    onClick = {
+                        // Sign out: clear current user
+                        userModel.logout()
+                        navController.navigate("signin") {
+                            popUpTo("game") { inclusive = true }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Sign Out")
+                }
             }
         }
     )
