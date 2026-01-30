@@ -32,7 +32,7 @@ The LLM was used for:
 
 With the intention to get the mole to immediately move to a different position upon getting clicked, the mole was sometimes jumping twice or appearing to skip positions due to overlapping timers and state changes.
 
-**Before (SharedPreferences):**
+**Before (Initial Attempt):**
 ```kotlin
 LaunchedEffect(gameRunning) {
         while (gameRunning) {
