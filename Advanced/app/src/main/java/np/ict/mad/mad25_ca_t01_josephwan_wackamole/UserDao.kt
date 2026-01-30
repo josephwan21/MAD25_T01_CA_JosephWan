@@ -9,6 +9,6 @@ interface UserDao {
     @Insert
     fun insertUser(user: User)
 
-    @Query("SELECT * FROM User WHERE username = :username LIMIT 1")
+    @Query("SELECT * FROM User WHERE username = :username AND password = :password LIMIT 1")
     fun getUserByCredentials(username: String, password: String): User?
 }
