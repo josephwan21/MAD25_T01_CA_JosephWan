@@ -111,7 +111,7 @@ fun GameScreen(navController: NavController) {
                         currentMoleIndex = Random.nextInt(0, 9)
                         moleTrigger++
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.width(150.dp)
                 ) {
                     Text(if (gameRunning) "Restart" else "Start")
                 }
