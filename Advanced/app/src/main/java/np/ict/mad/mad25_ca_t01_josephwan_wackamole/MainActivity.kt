@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import np.ict.mad.mad25_ca_t01_josephwan_wackamole.ui.theme.MAD25_CA_T01_JosephWan_WackAMoleTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +22,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MAD25_CA_T01_JosephWan_WackAMoleTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                WackAMoleApp()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun WackAMoleApp() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MAD25_CA_T01_JosephWan_WackAMoleTheme {
-        Greeting("Android")
+    NavHost(navController = navController, startDestination = "game") {
+        composable("game") { GameScreen(navController) }
+        composable("settings") { SettingsScreen(navController) }
     }
 }
