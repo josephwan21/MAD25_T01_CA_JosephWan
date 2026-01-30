@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 
 @Entity(
-    tableName = "scores",
+    tableName = "Score",
     foreignKeys = [
         ForeignKey(
             entity = User::class,
@@ -21,7 +21,7 @@ data class Score(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val userId: Int,
     val score: Int,
-    val timestamp: Long
+    val timestamp: Long = System.currentTimeMillis()
 )
 
 
