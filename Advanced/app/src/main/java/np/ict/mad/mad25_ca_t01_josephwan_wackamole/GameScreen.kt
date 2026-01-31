@@ -28,9 +28,6 @@ fun GameScreen(navController: NavController, db: AppDatabase, userModel: UserMod
 
     val context = LocalContext.current
 
-    //val prefs = context.getSharedPreferences("wackamole_prefs", Context.MODE_PRIVATE)
-    //var highScore by remember { mutableStateOf(prefs.getInt("high_score", 0)) }
-
     //Load personal best from Room
     var personalBest by remember { mutableStateOf(0) }
     LaunchedEffect(currentUser) {
