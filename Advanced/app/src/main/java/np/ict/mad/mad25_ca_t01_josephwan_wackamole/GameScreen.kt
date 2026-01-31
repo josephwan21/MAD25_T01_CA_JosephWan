@@ -119,9 +119,17 @@ fun GameScreen(navController: NavController, db: AppDatabase, userModel: UserMod
                         currentMoleIndex = Random.nextInt(0, 9)
                         moleTrigger++
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.width(150.dp)
                 ) {
                     Text(if (gameRunning) "Restart" else "Start")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { navController.navigate("leaderboard") },
+                    modifier = Modifier.width(300.dp)
+                ) {
+                    Text("View Leaderboard")
                 }
             }
         }

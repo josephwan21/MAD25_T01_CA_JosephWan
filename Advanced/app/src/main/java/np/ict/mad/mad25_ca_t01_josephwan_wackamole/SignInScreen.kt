@@ -64,7 +64,7 @@ fun SignInScreen(navController: NavController, db: AppDatabase, userModel: UserM
 
                         val existingUser = db.userDao().getUserByCredentials(username, password)
                         if (existingUser != null) {
-                            Toast.makeText(context, "Username already exists", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "User already exists", Toast.LENGTH_SHORT).show()
                         } else {
                             db.userDao().insertUser(User(username = username, password = password))
                             Toast.makeText(context, "User created! Please Sign In", Toast.LENGTH_SHORT).show()
