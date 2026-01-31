@@ -28,7 +28,7 @@ The LLM was used for:
 
 ## 3. Code Influenced by LLM
 
-### 3.1 Mole Movement Logic
+### 3.1.1 Mole Movement Logic
 
 With the intention to get the mole to immediately move to a different position upon clicking it, the mole was sometimes jumping twice or appearing to skip positions due to overlapping timers and state changes.
 
@@ -56,14 +56,74 @@ LaunchedEffect(gameRunning, moleTrigger) {
 ```
 
 **Why it was changed:** 
-- Clicking the mole immediately moves the mole to a new position and resets the delay timer cleanly.
-- Prevents overlapping coroutine execution.
+- Clicking the mole immediately moves the mole to a new position
+- Delay timer resets cleanly on each interaction
+- Prevents overlapping coroutine execution
 
+
+### 3.1.2 User State Handling Across Screens (Navigation --> Shared User View Model)
+Initially, user information was passed between screens using navigation arguments. While functional, this approach became cumbersome and error-prone as more screens required access to information of the current user.
+
+**Before (Passing User via Navigation Arguments)**
+```kotlin
+navController.navigate(
+    "game?userId=${user.userId}&username=${user.username}"
+)
+```
+
+And in the destination:
+```kotlin
+val userId = backStackEntry.arguments?.getInt("userId")
+val username = backStackEntry.arguments?.getString("username")
+```
+
+**Issues Identified**
+- Tight coupling between navigation routes and user data
+- Increased risk of null or mismatched arguments
+- Poor scalability as more user-related data was added.
+
+**After (Shared User View Model State)**
+```kotlin
+class UserModel : ViewModel() {
+    var currentUser by mutableStateOf<User?>(null)
+        private set
+```
+
+```kotlin
+fun WackAMoleApp() {
+    val db = Room.databaseBuilder(
+        LocalContext.current,
+        AppDatabase::class.java,
+        "wackamole_db"
+    ).allowMainThreadQueries().fallbackToDestructiveMigration(dropAllTables = true).build()
+
+    val navController = rememberNavController()
+    val userModel: UserModel = viewModel()
+
+    NavHost(navController = navController, startDestination = "signin") {
+        composable("signin") { SignInScreen(navController, db, userModel) }
+        composable("game") { GameScreen(navController, db, userModel) }
+        composable("settings") { SettingsScreen(navController, userModel) }
+        composable("leaderboard") { LeaderboardScreen(navController, db, userModel) }
+    }
+}
+```
+
+```kotlin
+val currentUser = userModel.currentUser ?: return
+```
+
+**Why it was changed:**
+- Centralises authenticated user state
+- Simplifies navigation routes
+- Reduces boilerplate and runtime errors
+- Better aligns with Compose's state-driven design
+  
 ---
 
 ### 3.2 Database Schema Improvements
 
-- Added foreign key relationship between User and Score
+- Added foreign key relationship between ``User`` and ``Score`` entities
 - Added index on foreign key column in the Score entity
 - Introduced timestamps for score tracking
 
@@ -72,26 +132,26 @@ These changes improved data integrity and eliminated Room warnings.
 ---
 
 ### 3.3 Game Logic Timing Fix
-- Identified multiple LaunchedEffect blocks updating the same state
-- Refactored logic to ensure controlled mole movement
-- Prevented unintended double jumps
+- Identified multiple ``LaunchedEffect`` blocks updating the same state
+- Refactored logic to ensure controlled and intended mole movement
+- Prevented unintended double jumps during gameplay
 
 ---
 
 ## 4. Room Schema Error Resolution
 
-Given the small scope of this CA, destructive migration was used during development.
-
-### App crashed with:
+### During development, the following runtime error was encountered:
 ``Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number.
 ``
+
+Given the scope of this CA, Destructive Migration was used during development.
 
 ### Resolution
 ```kotlin
 .fallbackToDestructiveMigration(dropAllTables = true)
 ```
 
-This ensured stability while iterating on the schema.
+This approach allowed rapid iteration while ensuring application stability. No production data was required to be preserved.
 
 ---
 
@@ -99,3 +159,4 @@ This ensured stability while iterating on the schema.
 - Jetpack Compose requires careful handling of side effects (LaunchedEffect) to avoid unintended recompositions.
 - Room databases must be versioned consistently; schema changes require explicit handling.
 - Separating UI state from game logic improves predictability.
+- LLMs are most effective when used as a helping tool to support understanding rather than replace problem-solving, which led to effective refinements in snippets of code in application development.
